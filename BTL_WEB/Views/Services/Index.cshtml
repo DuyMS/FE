@@ -1,0 +1,317 @@
+@model IEnumerable<BTL_WEB.Models.Service>
+@using BTL_WEB.Models
+
+@{
+    ViewData["Title"] = "Quản lý dịch vụ";
+    var categories = ViewBag.Categories as List<ServiceCategory> ?? new List<ServiceCategory>();
+}
+
+<h2 class="mb-3">Quản lý dịch vụ (AJAX)</h2>
+
+<form id="antiForgeryForm">
+    @Html.AntiForgeryToken()
+</form>
+
+<div id="ajaxMessage" class="alert d-none" role="alert"></div>
+
+<div class="card mb-4">
+    <div class="card-header">Thêm dịch vụ mới</div>
+    <div class="card-body">
+        <form id="createServiceForm">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Tên dịch vụ</label>
+                    <input type="text" class="form-control" id="createServiceName" name="ServiceName" required
+                        maxlength="100" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Danh mục</label>
+                    <select class="form-select" id="createCategoryId" name="CategoryId" required>
+                        <option value="">-- Chọn danh mục --</option>
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category.CategoryId">@category.CategoryName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Giá</label>
+                    <input type="number" class="form-control" id="createPrice" name="Price" min="0" step="1000"
+                        required />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Thời lượng (phút)</label>
+                    <input type="number" class="form-control" id="createDurationMinutes" name="DurationMinutes" min="1"
+                        required />
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="createStatus" name="Status">
+                        <option value="Active" selected>Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Mô tả</label>
+                    <textarea class="form-control" id="createDescription" name="Description" rows="2" maxlength="255"></textarea>
+                </div>
+                <div class="col-md-12 text-end">
+                    <button type="submit" class="btn btn-primary">Thêm dịch vụ</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped table-bordered align-middle" id="serviceTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tên dịch vụ</th>
+            <th>Danh mục</th>
+            <th>Giá</th>
+            <th>Thời lượng</th>
+            <th>Trạng thái</th>
+            <th>Mô tả</th>
+            <th class="text-center">Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr id="service-row-@item.ServiceId">
+            <td>@item.ServiceId</td>
+            <td>@item.ServiceName</td>
+            <td>@item.Category.CategoryName</td>
+            <td>@item.Price.ToString("N0") đ</td>
+            <td>@item.DurationMinutes</td>
+            <td>@item.Status</td>
+            <td>@item.Description</td>
+            <td class="text-center">
+                <button type="button" class="btn btn-warning btn-sm btn-edit-service" data-id="@item.ServiceId">Sửa</button>
+                <button type="button" class="btn btn-danger btn-sm btn-delete-service" data-id="@item.ServiceId">Xóa</button>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<div class="modal fade" id="editServiceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cập nhật dịch vụ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editServiceForm">
+                    <input type="hidden" id="editServiceId" />
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tên dịch vụ</label>
+                            <input type="text" class="form-control" id="editServiceName" required maxlength="100" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Danh mục</label>
+                            <select class="form-select" id="editCategoryId" required>
+                                @foreach (var category in categories)
+                                {
+                                    <option value="@category.CategoryId">@category.CategoryName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Trạng thái</label>
+                            <select class="form-select" id="editStatus">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Giá</label>
+                            <input type="number" class="form-control" id="editPrice" min="0" step="1000" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Thời lượng (phút)</label>
+                            <input type="number" class="form-control" id="editDurationMinutes" min="1" required />
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Mô tả</label>
+                            <textarea class="form-control" id="editDescription" rows="2" maxlength="255"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="btnSaveEdit">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            const token = $('#antiForgeryForm input[name="__RequestVerificationToken"]').val();
+            const editModal = new bootstrap.Modal(document.getElementById('editServiceModal'));
+
+            $('#createServiceForm').on('submit', function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: '@Url.Action("CreateAjax", "Services")',
+                    type: 'POST',
+                    data: {
+                        ServiceName: $('#createServiceName').val(),
+                        CategoryId: $('#createCategoryId').val(),
+                        Price: $('#createPrice').val(),
+                        DurationMinutes: $('#createDurationMinutes').val(),
+                        Status: $('#createStatus').val(),
+                        Description: $('#createDescription').val(),
+                        __RequestVerificationToken: token
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#serviceTable tbody').append(renderRow(response.data));
+                            $('#createServiceForm')[0].reset();
+                            $('#createStatus').val('Active');
+                            showMessage('alert-success', response.message);
+                            return;
+                        }
+
+                        showMessage('alert-warning', response.message);
+                    },
+                    error: function (xhr) {
+                        const message = xhr.responseJSON?.message || 'Có lỗi xảy ra khi thêm dịch vụ.';
+                        showMessage('alert-danger', message);
+                    }
+                });
+            });
+
+            $(document).on('click', '.btn-edit-service', function () {
+                const serviceId = $(this).data('id');
+
+                $.ajax({
+                    url: '@Url.Action("GetAjax", "Services")',
+                    type: 'GET',
+                    data: { id: serviceId },
+                    success: function (response) {
+                        if (!response.success) {
+                            showMessage('alert-warning', response.message);
+                            return;
+                        }
+
+                        const service = response.data;
+                        $('#editServiceId').val(service.id);
+                        $('#editServiceName').val(service.serviceName);
+                        $('#editCategoryId').val(service.categoryId);
+                        $('#editPrice').val(service.price);
+                        $('#editDurationMinutes').val(service.durationMinutes);
+                        $('#editStatus').val(service.status);
+                        $('#editDescription').val(service.description);
+                        editModal.show();
+                    },
+                    error: function () {
+                        showMessage('alert-danger', 'Không thể tải thông tin dịch vụ.');
+                    }
+                });
+            });
+
+            $('#btnSaveEdit').on('click', function () {
+                const id = $('#editServiceId').val();
+
+                $.ajax({
+                    url: '@Url.Action("UpdateAjax", "Services")/' + id,
+                    type: 'POST',
+                    data: {
+                        ServiceName: $('#editServiceName').val(),
+                        CategoryId: $('#editCategoryId').val(),
+                        Price: $('#editPrice').val(),
+                        DurationMinutes: $('#editDurationMinutes').val(),
+                        Status: $('#editStatus').val(),
+                        Description: $('#editDescription').val(),
+                        __RequestVerificationToken: token
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#service-row-' + response.data.id).replaceWith(renderRow(response.data));
+                            editModal.hide();
+                            showMessage('alert-success', response.message);
+                            return;
+                        }
+
+                        showMessage('alert-warning', response.message);
+                    },
+                    error: function (xhr) {
+                        const message = xhr.responseJSON?.message || 'Có lỗi xảy ra khi cập nhật dịch vụ.';
+                        showMessage('alert-danger', message);
+                    }
+                });
+            });
+
+            $(document).on('click', '.btn-delete-service', function () {
+                const serviceId = $(this).data('id');
+                if (!confirm('Bạn có chắc muốn xóa dịch vụ này?')) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("DeleteAjax", "Services")',
+                    type: 'POST',
+                    data: {
+                        id: serviceId,
+                        __RequestVerificationToken: token
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#service-row-' + response.id).fadeOut(200, function () {
+                                $(this).remove();
+                            });
+                            showMessage('alert-success', response.message);
+                            return;
+                        }
+
+                        showMessage('alert-warning', response.message);
+                    },
+                    error: function (xhr) {
+                        const message = xhr.responseJSON?.message || 'Có lỗi xảy ra khi xóa dịch vụ.';
+                        showMessage('alert-danger', message);
+                    }
+                });
+            });
+
+            function renderRow(service) {
+                return `<tr id="service-row-${service.id}">
+                            <td>${service.id}</td>
+                            <td>${escapeHtml(service.serviceName)}</td>
+                            <td>${escapeHtml(service.categoryName)}</td>
+                            <td>${service.priceText}</td>
+                            <td>${service.durationMinutes}</td>
+                            <td>${escapeHtml(service.status)}</td>
+                            <td>${escapeHtml(service.description || '')}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-warning btn-sm btn-edit-service" data-id="${service.id}">Sửa</button>
+                                <button type="button" class="btn btn-danger btn-sm btn-delete-service" data-id="${service.id}">Xóa</button>
+                            </td>
+                        </tr>`;
+            }
+
+            function escapeHtml(value) {
+                return String(value)
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#39;');
+            }
+
+            function showMessage(cssClass, message) {
+                const messageBox = $('#ajaxMessage');
+                messageBox.removeClass('d-none alert-success alert-warning alert-danger')
+                    .addClass(cssClass)
+                    .text(message);
+            }
+        });
+    </script>
+}
