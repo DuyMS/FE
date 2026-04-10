@@ -14,16 +14,61 @@ public class ServicesController : Controller
         _context = context;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? searchTerm, int? categoryId, string? status, int page = 1, int pageSize = 10)
     {
-        var services = await _context.Services
+        if (page < 1)
+        {
+            page = 1;
+        }
+
+        if (pageSize < 1)
+        {
+            pageSize = 10;
+        }
+
+        var query = _context.Services
             .Include(s => s.Category)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var keyword = searchTerm.Trim();
+            query = query.Where(s => s.ServiceName.Contains(keyword));
+        }
+
+        if (categoryId.HasValue && categoryId.Value > 0)
+        {
+            query = query.Where(s => s.CategoryId == categoryId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(s => s.Status == status);
+        }
+
+        var totalItems = await query.CountAsync();
+        var totalPages = totalItems == 0 ? 1 : (int)Math.Ceiling(totalItems / (double)pageSize);
+        if (page > totalPages)
+        {
+            page = totalPages;
+        }
+
+        var services = await query
             .OrderBy(s => s.ServiceName)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
         ViewBag.Categories = await _context.ServiceCategories
             .OrderBy(c => c.CategoryName)
             .ToListAsync();
+        ViewBag.SearchTerm = searchTerm ?? string.Empty;
+        ViewBag.CategoryId = categoryId;
+        ViewBag.Status = status ?? string.Empty;
+        ViewBag.Page = page;
+        ViewBag.PageSize = pageSize;
+        ViewBag.TotalPages = totalPages;
+        ViewBag.TotalItems = totalItems;
 
         return View(services);
     }

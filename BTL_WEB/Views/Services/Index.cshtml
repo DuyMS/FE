@@ -4,6 +4,13 @@
 @{
     ViewData["Title"] = "Quản lý dịch vụ";
     var categories = ViewBag.Categories as List<ServiceCategory> ?? new List<ServiceCategory>();
+    var searchTerm = ViewBag.SearchTerm as string ?? string.Empty;
+    var selectedCategoryId = ViewBag.CategoryId as int?;
+    var selectedStatus = ViewBag.Status as string ?? string.Empty;
+    var currentPage = ViewBag.Page as int? ?? 1;
+    var pageSize = ViewBag.PageSize as int? ?? 10;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
+    var totalItems = ViewBag.TotalItems as int? ?? 0;
 }
 
 <h2 class="mb-3">Quản lý dịch vụ (AJAX)</h2>
@@ -63,38 +70,108 @@
     </div>
 </div>
 
-<table class="table table-striped table-bordered align-middle" id="serviceTable">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Tên dịch vụ</th>
-            <th>Danh mục</th>
-            <th>Giá</th>
-            <th>Thời lượng</th>
-            <th>Trạng thái</th>
-            <th>Mô tả</th>
-            <th class="text-center">Thao tác</th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model)
+<div class="card mb-4">
+    <div class="card-header">Bộ lọc tìm kiếm</div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Từ khóa</label>
+                <input type="text" class="form-control" name="searchTerm" value="@searchTerm" placeholder="Nhập tên dịch vụ" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Danh mục</label>
+                <select class="form-select" name="categoryId">
+                    <option value="">-- Tất cả --</option>
+                    @foreach (var category in categories)
+                    {
+                        <option value="@category.CategoryId" selected="@(selectedCategoryId == category.CategoryId)">@category.CategoryName</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Trạng thái</label>
+                <select class="form-select" name="status">
+                    <option value="">-- Tất cả --</option>
+                    <option value="Active" selected="@(selectedStatus == "Active")">Active</option>
+                    <option value="Inactive" selected="@(selectedStatus == "Inactive")">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Hiển thị</label>
+                <select class="form-select" name="pageSize">
+                    <option value="5" selected="@(pageSize == 5)">5</option>
+                    <option value="10" selected="@(pageSize == 10)">10</option>
+                    <option value="20" selected="@(pageSize == 20)">20</option>
+                    <option value="50" selected="@(pageSize == 50)">50</option>
+                </select>
+            </div>
+            <div class="col-md-12 text-end">
+                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                <a class="btn btn-outline-secondary" href="@Url.Action("Index", "Services")">Đặt lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered align-middle" id="serviceTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên dịch vụ</th>
+                <th>Danh mục</th>
+                <th>Giá</th>
+                <th>Thời lượng</th>
+                <th>Trạng thái</th>
+                <th>Mô tả</th>
+                <th class="text-center">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr id="service-row-@item.ServiceId">
+                <td>@item.ServiceId</td>
+                <td>@item.ServiceName</td>
+                <td>@item.Category.CategoryName</td>
+                <td>@item.Price.ToString("N0") đ</td>
+                <td>@item.DurationMinutes</td>
+                <td>@item.Status</td>
+                <td>@item.Description</td>
+                <td>
+                    <div class="d-flex flex-column flex-md-row gap-1 justify-content-center">
+                        <button type="button" class="btn btn-warning btn-sm btn-edit-service" data-id="@item.ServiceId">Sửa</button>
+                        <button type="button" class="btn btn-danger btn-sm btn-delete-service" data-id="@item.ServiceId">Xóa</button>
+                    </div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+    <span>Hiển thị @Model.Count() / @totalItems dịch vụ</span>
+    @if (totalPages > 1)
     {
-        <tr id="service-row-@item.ServiceId">
-            <td>@item.ServiceId</td>
-            <td>@item.ServiceName</td>
-            <td>@item.Category.CategoryName</td>
-            <td>@item.Price.ToString("N0") đ</td>
-            <td>@item.DurationMinutes</td>
-            <td>@item.Status</td>
-            <td>@item.Description</td>
-            <td class="text-center">
-                <button type="button" class="btn btn-warning btn-sm btn-edit-service" data-id="@item.ServiceId">Sửa</button>
-                <button type="button" class="btn btn-danger btn-sm btn-delete-service" data-id="@item.ServiceId">Xóa</button>
-            </td>
-        </tr>
+        <nav aria-label="Điều hướng phân trang" class="overflow-auto">
+            <ul class="pagination mb-0">
+                <li class="page-item @(currentPage == 1 ? "disabled" : string.Empty)">
+                    <a class="page-link" href="@Url.Action("Index", new { page = currentPage - 1, pageSize, searchTerm, categoryId = selectedCategoryId, status = selectedStatus })">Trước</a>
+                </li>
+                @for (var i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : string.Empty)">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i, pageSize, searchTerm, categoryId = selectedCategoryId, status = selectedStatus })">@i</a>
+                    </li>
+                }
+                <li class="page-item @(currentPage == totalPages ? "disabled" : string.Empty)">
+                    <a class="page-link" href="@Url.Action("Index", new { page = currentPage + 1, pageSize, searchTerm, categoryId = selectedCategoryId, status = selectedStatus })">Sau</a>
+                </li>
+            </ul>
+        </nav>
     }
-    </tbody>
-</table>
+</div>
 
 <div class="modal fade" id="editServiceModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -290,9 +367,11 @@
                             <td>${service.durationMinutes}</td>
                             <td>${escapeHtml(service.status)}</td>
                             <td>${escapeHtml(service.description || '')}</td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-warning btn-sm btn-edit-service" data-id="${service.id}">Sửa</button>
-                                <button type="button" class="btn btn-danger btn-sm btn-delete-service" data-id="${service.id}">Xóa</button>
+                            <td>
+                                <div class="d-flex flex-column flex-md-row gap-1 justify-content-center">
+                                    <button type="button" class="btn btn-warning btn-sm btn-edit-service" data-id="${service.id}">Sửa</button>
+                                    <button type="button" class="btn btn-danger btn-sm btn-delete-service" data-id="${service.id}">Xóa</button>
+                                </div>
                             </td>
                         </tr>`;
             }
