@@ -1,0 +1,313 @@
+@model BTL_WEB.Models.ViewModels.PetsPageViewModel
+@using System.Linq
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Pet Gallery";
+    Layout = "~/Views/Shared/_LayoutPetcarehub.cshtml";
+
+    var branchOptions = ViewBag.BranchOptions as IEnumerable<dynamic> ?? [];
+    var serverPetsJson = JsonSerializer.Serialize(Model.Pets.Select(p => new
+    {
+        petId = p.PetId,
+        name = p.Name,
+        species = p.Species,
+        breed = p.Breed,
+        age = (int?)null,
+        gender = p.Gender,
+        adoptionStatus = p.AdoptionStatus,
+        branchName = p.BranchName
+    }));
+    var serverImagesJson = JsonSerializer.Serialize(Model.Images.Select(i => new
+    {
+        petId = i.PetId,
+        imageUrl = i.ImageUrl,
+        isPrimary = i.IsPrimary
+    }));
+    var serverBranchesJson = JsonSerializer.Serialize(branchOptions.Select(b => new
+    {
+        branchId = (int)b.BranchId,
+        branchName = (string)b.BranchName
+    }));
+}
+
+<section class="ftco-section bg-light pet-gallery-page">
+    <div class="container">
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-10 text-center">
+                <h2 class="pet-gallery-title">Danh sách thú cưng</h2>
+                <p class="text-muted mb-0">Khám phá những bé thú cưng đang được chăm sóc tại PetCareHub.</p>
+            </div>
+        </div>
+
+        <div class="filter-bar shadow-sm">
+            <div class="row g-2 align-items-end">
+                <div class="col-lg-4 col-md-6 mb-2">
+                    <label for="searchInput" class="small text-muted">Tìm theo tên</label>
+                    <input id="searchInput" type="text" class="form-control" placeholder="Nhập tên thú cưng" />
+                </div>
+                <div class="col-lg-2 col-md-6 mb-2">
+                    <label for="speciesFilter" class="small text-muted">Loại</label>
+                    <select id="speciesFilter" class="form-control">
+                        <option value="">Tất cả</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-2">
+                    <label for="genderFilter" class="small text-muted">Giới tính</label>
+                    <select id="genderFilter" class="form-control">
+                        <option value="">Tất cả</option>
+                        <option value="Đực">Đực</option>
+                        <option value="Cái">Cái</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-2">
+                    <label for="branchFilter" class="small text-muted">Chi nhánh</label>
+                    <select id="branchFilter" class="form-control">
+                        <option value="">Tất cả</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-12 mb-2">
+                    <button id="btnFilter" type="button" class="btn btn-success w-100">Lọc ngay</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="petGalleryGrid" class="pet-grid mt-4"></div>
+    </div>
+</section>
+
+<style>
+    .pet-gallery-page {
+        --brand-green: #28a745;
+    }
+
+    .pet-gallery-title {
+        color: #1f7a35;
+        font-weight: 700;
+    }
+
+    .filter-bar {
+        background: #fff;
+        border-radius: 12px;
+        padding: 1rem;
+        border: 1px solid #e8ecef;
+    }
+
+    .pet-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1.25rem;
+    }
+
+    .pet-card {
+        background: #fff;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+        transition: transform .25s ease, box-shadow .25s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pet-card:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 .8rem 1.5rem rgba(40, 167, 69, .15);
+    }
+
+    .pet-image-wrap {
+        position: relative;
+        height: 210px;
+        overflow: hidden;
+    }
+
+    .pet-image-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .species-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(40, 167, 69, .9);
+        color: #fff;
+        border-radius: 999px;
+        padding: .35rem .75rem;
+        font-size: .78rem;
+        font-weight: 600;
+    }
+
+    .pet-card-body {
+        padding: 1rem;
+    }
+
+    .pet-card-body h3 {
+        font-size: 1.1rem;
+        margin-bottom: .5rem;
+        color: #1f2937;
+    }
+
+    .pet-meta {
+        color: #4b5563;
+        margin-bottom: .25rem;
+        font-size: .92rem;
+    }
+
+    .pet-card-footer {
+        margin-top: auto;
+        padding: .9rem 1rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #f1f4f6;
+    }
+
+    .status-badge {
+        border-radius: 999px;
+        padding: .35rem .7rem;
+        font-size: .76rem;
+        font-weight: 600;
+    }
+
+    .status-available { background: #e8f7ed; color: #1b7f38; }
+    .status-pending { background: #fff6db; color: #b78600; }
+    .status-adopted { background: #f1f3f5; color: #6c757d; }
+
+    .btn-detail {
+        color: #28a745;
+        border: 1px solid #28a745;
+        border-radius: 999px;
+        padding: .3rem .7rem;
+        font-size: .8rem;
+        text-decoration: none;
+    }
+
+    .btn-detail:hover {
+        background: #28a745;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .empty-box {
+        grid-column: 1 / -1;
+        background: #fff;
+        border: 1px dashed #ced4da;
+        border-radius: 10px;
+        text-align: center;
+        padding: 2rem 1rem;
+        color: #6b7280;
+    }
+
+    @@media (max-width: 991px) {
+        .pet-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @@media (max-width: 767px) {
+        .pet-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<script src="~/js/data.js" asp-append-version="true"></script>
+<script>
+    (function () {
+        const serverPets = @Html.Raw(serverPetsJson);
+        const serverBranches = @Html.Raw(serverBranchesJson);
+        const serverImages = @Html.Raw(serverImagesJson);
+
+        const pets = serverPets.length ? serverPets : (window.petData || []);
+        const branches = serverBranches.length ? serverBranches : (window.branchData || []);
+        const images = serverImages.length ? serverImages : (window.petImageData || []);
+        const branchIdByName = Object.fromEntries(branches.map(b => [b.branchName, b.branchId]));
+        const normalizedPets = pets.map(p => ({
+            ...p,
+            branchId: p.branchId ?? branchIdByName[p.branchName]
+        }));
+
+        const searchInput = document.getElementById('searchInput');
+        const speciesFilter = document.getElementById('speciesFilter');
+        const genderFilter = document.getElementById('genderFilter');
+        const branchFilter = document.getElementById('branchFilter');
+        const btnFilter = document.getElementById('btnFilter');
+        const grid = document.getElementById('petGalleryGrid');
+
+        function fillOptions() {
+            const speciesSet = [...new Set(normalizedPets.map(x => x.species))];
+            speciesSet.forEach(s => speciesFilter.innerHTML += `<option value="${s}">${s}</option>`);
+
+            branches.forEach(b => branchFilter.innerHTML += `<option value="${b.branchId}">${b.branchName}</option>`);
+        }
+
+        function getPrimaryImage(petId) {
+            const found = images.find(i => i.petId === petId && i.isPrimary) || images.find(i => i.petId === petId);
+            return found?.imageUrl || '/LayoutPetcare/images/gallery-1.jpg';
+        }
+
+        function getBranchName(branchId, branchName) {
+            return branchName || branches.find(b => String(b.branchId) === String(branchId))?.branchName || 'Chưa xác định';
+        }
+
+        function getStatusClass(status) {
+            const key = (status || '').toLowerCase();
+            if (key === 'available') return 'status-available';
+            if (key === 'pending') return 'status-pending';
+            return 'status-adopted';
+        }
+
+        function render(list) {
+            if (!list.length) {
+                grid.innerHTML = '<div class="empty-box">Không có thú cưng phù hợp bộ lọc.</div>';
+                return;
+            }
+
+            grid.innerHTML = list.map(p => `
+                <article class="pet-card">
+                    <div class="pet-image-wrap">
+                        <img src="${getPrimaryImage(p.petId)}" alt="${p.name}" />
+                        <span class="species-badge">${p.species}</span>
+                    </div>
+                    <div class="pet-card-body">
+                        <h3>${p.name}</h3>
+                        <p class="pet-meta"><strong>Giống:</strong> ${p.breed ?? 'N/A'}</p>
+                        <p class="pet-meta"><strong>Tuổi:</strong> ${p.age ? `${p.age} tuổi` : 'Chưa cập nhật'}</p>
+                        <p class="pet-meta"><strong>Giới tính:</strong> ${p.gender ?? 'N/A'}</p>
+                        <p class="pet-meta"><strong>Chi nhánh:</strong> ${getBranchName(p.branchId, p.branchName)}</p>
+                    </div>
+                    <div class="pet-card-footer">
+                        <span class="status-badge ${getStatusClass(p.adoptionStatus)}">${p.adoptionStatus}</span>
+                        <a class="btn-detail" href="/Management/PetDetail?id=${p.petId}">Xem chi tiết</a>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function applyFilter() {
+            const searchValue = (searchInput.value || '').trim().toLowerCase();
+            const speciesValue = speciesFilter.value;
+            const genderValue = genderFilter.value;
+            const branchValue = branchFilter.value;
+
+            console.log('Filter values:', { searchValue, speciesValue, genderValue, branchValue });
+
+            const filtered = normalizedPets.filter(p => {
+                const matchName = !searchValue || p.name.toLowerCase().includes(searchValue);
+                const matchSpecies = !speciesValue || p.species === speciesValue;
+                const matchGender = !genderValue || p.gender === genderValue;
+                const matchBranch = !branchValue || String(p.branchId) === String(branchValue);
+                return matchName && matchSpecies && matchGender && matchBranch;
+            });
+
+            render(filtered);
+        }
+
+        fillOptions();
+        render(normalizedPets);
+        btnFilter.addEventListener('click', applyFilter);
+        searchInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyFilter();
+            }
+        });
+    })();
+</script>

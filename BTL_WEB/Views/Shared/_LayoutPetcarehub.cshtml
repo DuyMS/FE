@@ -4,23 +4,68 @@
     <title>Pet Sitting - Free Bootstrap 4 Template by Colorlib</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <base href="@Url.Content("~/LayoutPetcare/")" />
     
     <link href="https://fonts.googleapis.com/css?family=Montserrat:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
  
-    <link rel="stylesheet" href="../LayoutPetcare/css/animate.css">
+    <link rel="stylesheet" href="~/LayoutPetcare/css/animate.css">
     
-    <link rel="stylesheet" href="../LayoutPetcare/css/owl.carousel.min.css">
-    <link rel="stylesheet" href="../LayoutPetcare/css/owl.theme.default.min.css">
-    <link rel="stylesheet" href="../LayoutPetcare/css/magnific-popup.css">
+    <link rel="stylesheet" href="~/LayoutPetcare/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="~/LayoutPetcare/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="~/LayoutPetcare/css/magnific-popup.css">
 
 
-    <link rel="stylesheet" href="../LayoutPetcare/css/bootstrap-datepicker.css">
-    <link rel="stylesheet" href="../LayoutPetcare/css/jquery.timepicker.css">
+    <link rel="stylesheet" href="~/LayoutPetcare/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="~/LayoutPetcare/css/jquery.timepicker.css">
 
-    <link rel="stylesheet" href="../LayoutPetcare/css/flaticon.css">
-    <link rel="stylesheet" href="../LayoutPetcare/css/style.css">
+    <link rel="stylesheet" href="~/LayoutPetcare/css/flaticon.css">
+    <link rel="stylesheet" href="~/LayoutPetcare/css/style.css">
+    <style>
+        .petcare-nav-main .nav-link,
+        .petcare-nav-main .dropdown-toggle {
+            white-space: nowrap;
+        }
+
+        .petcare-nav-main .user-nav-search .form-control {
+            min-width: 150px;
+            border-radius: 999px;
+            margin-right: .4rem;
+        }
+
+        .petcare-nav-main .user-nav-search .btn {
+            border-radius: 999px;
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+        }
+
+        .petcare-nav-main .user-nav-search {
+            display: flex;
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: .4rem;
+            margin-bottom: 0;
+        }
+
+        .petcare-nav-main .user-nav-search .form-control {
+            height: 34px;
+            margin-right: 0;
+            width: auto;
+            flex: 1 1 auto;
+        }
+
+        @@media (min-width: 992px) {
+            .petcare-nav-main .navbar-nav > .nav-item > .nav-link {
+                padding-left: .65rem;
+                padding-right: .65rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -46,40 +91,51 @@
             </div>
         </div>
     </div>
-    <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+    <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light petcare-nav-main" id="ftco-navbar">
         <div class="container">
             <a class="navbar-brand" href="index.html"><span class="flaticon-pawprint-1 mr-2"></span>Pet sitting</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="fa fa-bars"></span> Menu
             </button>
             <div class="collapse navbar-collapse" id="ftco-nav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item active"><a href="index.html" class="nav-link">Home</a></li>
-                    <li class="nav-item"><a href="about.html" class="nav-link">About</a></li>
-                    <li class="nav-item"><a href="vet.html" class="nav-link">Veterinarian</a></li>
-                    <li class="nav-item"><a asp-controller="Services" asp-action="Index" class="nav-link">Services</a></li>
-                    <li class="nav-item"><a href="gallery.html" class="nav-link">Gallery</a></li>
-                    <li class="nav-item"><a href="pricing.html" class="nav-link">Pricing</a></li>
-                    <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
-                    <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+                <ul class="navbar-nav mr-auto align-items-lg-center">
+                    <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : string.Empty)">
+                        <a asp-controller="Home" asp-action="Index" class="nav-link">Tổng quan</a>
+                    </li>
+                    <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Services" ? "active" : string.Empty)">
+                        <a asp-controller="Services" asp-action="Catalog" class="nav-link">Dịch vụ</a>
+                    </li>
+                    <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Management" && ViewContext.RouteData.Values["action"]?.ToString() == "Pets" ? "active" : string.Empty)">
+                        <a asp-controller="Management" asp-action="Pets" class="nav-link">Thú cưng</a>
+                    </li>
+                    <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Management" && ViewContext.RouteData.Values["action"]?.ToString() == "Appointments" ? "active" : string.Empty)">
+                        <a asp-controller="Management" asp-action="Appointments" class="nav-link">Lịch hẹn</a>
+                    </li>
+                    <li class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : string.Empty)">
+                        <a asp-controller="Home" asp-action="Profile" class="nav-link">Hồ sơ cá nhân</a>
+                    </li>
+                </ul>
+
+                <form class="form-inline user-nav-search mx-lg-3 my-2 my-lg-0" method="get" asp-controller="Management" asp-action="Pets">
+                    <input type="search" class="form-control form-control-sm" name="searchTerm" placeholder="Tìm thú cưng" aria-label="Tìm thú cưng" />
+                    <button class="btn btn-primary btn-sm" type="submit" aria-label="Tìm thú cưng">
+                        <span class="fa fa-search"></span>
+                    </button>
+                </form>
+
+                <ul class="navbar-nav align-items-lg-center ml-lg-auto">
+                    <li class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Login" ? "active" : string.Empty)">
+                        <a asp-controller="Home" asp-action="Login" class="nav-link text-nowrap">Đăng nhập</a>
+                    </li>
+                    <li class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Register" ? "active" : string.Empty)">
+                        <a asp-controller="Home" asp-action="Register" class="nav-link text-nowrap">Đăng ký</a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
     <!-- END nav -->
     @RenderBody()
-
-    <div class="hero-wrap js-fullheight" style="background-image: url('images/bg_1.jpg');" data-stellar-background-ratio="0.5">
-        <div class="overlay"></div>
-        <div class="container">
-            <div class="row no-gutters slider-text js-fullheight align-items-center justify-content-center" data-scrollax-parent="true">
-                <div class="col-md-11 ftco-animate text-center">
-                    <h1 class="mb-4">Highest Quality Care For Pets You'll Love </h1>
-                    <p><a href="#" class="btn btn-primary mr-md-4 py-3 px-4">Learn more <span class="ion-ios-arrow-forward"></span></a></p>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <section class="ftco-section bg-light ftco-no-pt ftco-intro">
         <div class="container">
@@ -710,22 +766,22 @@
     <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee" /><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00" /></svg></div>
 
 
-    <script src="../LayoutPetcare/js/jquery.min.js"></script>
-    <script src="../LayoutPetcare/js/jquery-migrate-3.0.1.min.js"></script>
-    <script src="../LayoutPetcare/js/popper.min.js"></script>
-    <script src="../LayoutPetcare/js/bootstrap.min.js"></script>
-    <script src="../LayoutPetcare/js/jquery.easing.1.3.js"></script>
-    <script src="../LayoutPetcare/js/jquery.waypoints.min.js"></script>
-    <script src="../LayoutPetcare/js/jquery.stellar.min.js"></script>
-    <script src="../LayoutPetcare/js/jquery.animateNumber.min.js"></script>
-    <script src="../LayoutPetcare/js/bootstrap-datepicker.js"></script>
-    <script src="../LayoutPetcare/js/jquery.timepicker.min.js"></script>
-    <script src="../LayoutPetcare/js/owl.carousel.min.js"></script>
-    <script src="../LayoutPetcare/js/jquery.magnific-popup.min.js"></script>
-    <script src="../LayoutPetcare/js/scrollax.min.js"></script>
+    <script src="~/LayoutPetcare/js/jquery.min.js"></script>
+    <script src="~/LayoutPetcare/js/jquery-migrate-3.0.1.min.js"></script>
+    <script src="~/LayoutPetcare/js/popper.min.js"></script>
+    <script src="~/LayoutPetcare/js/bootstrap.min.js"></script>
+    <script src="~/LayoutPetcare/js/jquery.easing.1.3.js"></script>
+    <script src="~/LayoutPetcare/js/jquery.waypoints.min.js"></script>
+    <script src="~/LayoutPetcare/js/jquery.stellar.min.js"></script>
+    <script src="~/LayoutPetcare/js/jquery.animateNumber.min.js"></script>
+    <script src="~/LayoutPetcare/js/bootstrap-datepicker.js"></script>
+    <script src="~/LayoutPetcare/js/jquery.timepicker.min.js"></script>
+    <script src="~/LayoutPetcare/js/owl.carousel.min.js"></script>
+    <script src="~/LayoutPetcare/js/jquery.magnific-popup.min.js"></script>
+    <script src="~/LayoutPetcare/js/scrollax.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
-    <script src="../LayoutPetcare/js/google-map.js"></script>
-    <script src="../LayoutPetcare/js/main.js"></script>
+    <script src="~/LayoutPetcare/js/google-map.js"></script>
+    <script src="~/LayoutPetcare/js/main.js"></script>
     <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
         tinymce.init({

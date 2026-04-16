@@ -1,0 +1,162 @@
+@model BTL_WEB.Models.ViewModels.SystemPageViewModel
+
+@{
+    ViewData["Title"] = "Quản lý hệ thống";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+}
+
+<section class="ftco-section bg-light">
+    <div class="container">
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-10 text-center heading-section ftco-animate">
+                <h2>Quản lý Hệ thống</h2>
+                <p>Các bảng theo sơ đồ: <strong>ROLE</strong>, <strong>USER</strong>, <strong>BRANCH</strong>, <strong>STAFF</strong>.</p>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card p-3">
+                    <form method="get" class="row">
+                        <div class="col-md-9 mb-2">
+                            <input class="form-control" name="keyword" value="@Model.Keyword" placeholder="Tìm theo username, họ tên, email" />
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button type="submit" class="btn btn-primary btn-block">Lọc hệ thống</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-4" id="system-users">
+                <div class="card p-3 h-100">
+                    <h5 class="mb-3">Role / User</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered bg-white">
+                            <thead>
+                                <tr>
+                                    <th>UserID</th>
+                                    <th>Username</th>
+                                    <th>FullName</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Users.Count == 0)
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">Không có dữ liệu người dùng.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var item in Model.Users)
+                                    {
+                                        <tr>
+                                            <td>@item.UserId</td>
+                                            <td>@item.Username</td>
+                                            <td>@item.FullName</td>
+                                            <td>@item.RoleName</td>
+                                            <td>@item.Status</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4" id="system-branches">
+                <div class="card p-3 h-100">
+                    <h5 class="mb-3">Branch / Staff</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered bg-white">
+                            <thead>
+                                <tr>
+                                    <th>StaffID</th>
+                                    <th>UserID</th>
+                                    <th>FullName</th>
+                                    <th>BranchID</th>
+                                    <th>Branch</th>
+                                    <th>Position</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Staff.Count == 0)
+                                {
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">Không có dữ liệu nhân sự.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var item in Model.Staff)
+                                    {
+                                        <tr>
+                                            <td>@item.StaffId</td>
+                                            <td>@item.UserId</td>
+                                            <td>@item.FullName</td>
+                                            <td>@item.BranchId</td>
+                                            <td>@item.BranchName</td>
+                                            <td>@item.Position</td>
+                                            <td>@item.Status</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12 mb-4" id="system-payments">
+                <div class="card p-3 h-100">
+                    <h5 class="mb-3">Payment</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered bg-white">
+                            <thead>
+                                <tr>
+                                    <th>PaymentID</th>
+                                    <th>AppointmentID</th>
+                                    <th>ContractID</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Date</th>
+                                    <th>PaymentStatus</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Payments.Count == 0)
+                                {
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">Không có dữ liệu thanh toán.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var item in Model.Payments)
+                                    {
+                                        <tr>
+                                            <td>@item.PaymentId</td>
+                                            <td>@item.AppointmentId</td>
+                                            <td>@item.ContractId</td>
+                                            <td>@item.Amount.ToString("N0") đ</td>
+                                            <td>@item.PaymentMethod</td>
+                                            <td>@item.PaymentDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@item.PaymentStatus</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

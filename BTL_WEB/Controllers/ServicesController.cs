@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using BTL_WEB.Models;
+using BTL_WEB.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -71,6 +72,34 @@ public class ServicesController : Controller
         ViewBag.TotalItems = totalItems;
 
         return View(services);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Catalog()
+    {
+        var groups = await _context.ServiceCategories
+            .AsNoTracking()
+            .OrderBy(c => c.CategoryName)
+            .Select(c => new ServiceCategoryGroupViewModel
+            {
+                CategoryId = c.CategoryId,
+                CategoryName = c.CategoryName,
+                Services = c.Services
+                    .Where(s => s.Status == "Active")
+                    .OrderBy(s => s.ServiceName)
+                    .Select(s => new ServiceCardViewModel
+                    {
+                        ServiceId = s.ServiceId,
+                        ServiceName = s.ServiceName,
+                        Description = s.Description,
+                        Price = s.Price,
+                        DurationMinutes = s.DurationMinutes
+                    })
+                    .ToList()
+            })
+            .ToListAsync();
+
+        return View(new ServiceCatalogViewModel { Groups = groups });
     }
 
     [HttpGet]

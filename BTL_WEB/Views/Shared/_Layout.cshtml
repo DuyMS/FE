@@ -11,23 +11,63 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">BTL_WEB</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                <a class="navbar-brand fw-semibold text-nowrap" asp-area="" asp-controller="Home" asp-action="Index">PetCareHub</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-nowrap" asp-area="" asp-controller="Home" asp-action="Index">Tổng quan</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-nowrap" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Dịch vụ & lịch hẹn
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Services" asp-action="Index">Quản lý dịch vụ</a></li>
+                                <li><a class="dropdown-item" asp-controller="Management" asp-action="Appointments">Lịch hẹn</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-nowrap" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Thú cưng
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Management" asp-action="Pets" asp-fragment="pet-profile">Hồ sơ thú cưng</a></li>
+                                <li><a class="dropdown-item" asp-controller="Management" asp-action="Pets" asp-fragment="pet-images">Ảnh thú cưng</a></li>
+                                <li><a class="dropdown-item" asp-controller="Management" asp-action="Pets" asp-fragment="pet-vaccinations">Tiêm chủng</a></li>
+                                <li><a class="dropdown-item" asp-controller="Management" asp-action="Pets" asp-fragment="pet-medical">Hồ sơ y tế</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-nowrap" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Hệ thống
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Management" asp-action="System" asp-fragment="system-users">Người dùng & phân quyền</a></li>
+                                <li><a class="dropdown-item" asp-controller="Management" asp-action="System" asp-fragment="system-branches">Chi nhánh & nhân sự</a></li>
+                                <li><a class="dropdown-item" asp-controller="Management" asp-action="System" asp-fragment="system-payments">Thanh toán</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <form class="d-flex align-items-center mx-lg-3 my-2 my-lg-0 navbar-search" method="get" asp-controller="Services" asp-action="Index">
+                        <input class="form-control form-control-sm" type="search" name="searchTerm" placeholder="Tìm dịch vụ" aria-label="Tìm kiếm dịch vụ" />
+                        <button class="btn btn-sm btn-primary ms-2 d-flex align-items-center justify-content-center" type="submit" aria-label="Tìm kiếm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.04.044.082.086.125.128l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.142-.112zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                            </svg>
+                        </button>
+                    </form>
+                    <ul class="navbar-nav ms-lg-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link text-nowrap" asp-controller="Home" asp-action="Login">Đăng nhập</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Services" asp-action="Index">Services</a>
+                            <a class="nav-link text-nowrap" asp-controller="Home" asp-action="Register">Đăng ký</a>
                         </li>
                     </ul>
                 </div>
@@ -42,7 +82,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - BTL_WEB - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2026 - PetCareHub - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

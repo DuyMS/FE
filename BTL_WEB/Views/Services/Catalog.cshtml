@@ -1,0 +1,127 @@
+@model BTL_WEB.Models.ViewModels.ServiceCatalogViewModel
+
+@{
+    ViewData["Title"] = "Dịch vụ chăm sóc";
+    Layout = "~/Views/Shared/_LayoutPetcarehub.cshtml";
+}
+
+<section class="ftco-section bg-light">
+    <div class="container">
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-10 text-center heading-section">
+                <h2>Dịch vụ chăm sóc thú cưng</h2>
+                <p>Danh sách dịch vụ theo danh mục: Chăm sóc cơ bản, Y tế, Làm đẹp.</p>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4 service-search-box">
+            <div class="card-body py-3">
+                <div class="row align-items-center">
+                    <div class="col-lg-8 mb-2 mb-lg-0">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white border-right-0"><span class="fa fa-search text-success"></span></span>
+                            </div>
+                            <input id="serviceSearchInput" type="search" class="form-control border-left-0" placeholder="Tìm theo tên dịch vụ hoặc mô tả..." />
+                        </div>
+                    </div>
+                    <div class="col-lg-4 text-lg-right">
+                        <button id="btnServiceSearch" type="button" class="btn btn-success px-4 mr-2">
+                            Tìm kiếm
+                        </button>
+                        <button id="btnClearServiceSearch" type="button" class="btn btn-outline-secondary px-4">Đặt lại</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.Groups.Count == 0)
+        {
+            <div class="alert alert-light border text-center text-muted">Chưa có dịch vụ khả dụng.</div>
+        }
+        else
+        {
+            @foreach (var group in Model.Groups)
+            {
+                <div class="mb-4 service-group">
+                    <h4 class="mb-3">@group.CategoryName</h4>
+                    <div class="row">
+                        @if (group.Services.Count == 0)
+                        {
+                            <div class="col-12">
+                                <div class="alert alert-light border text-muted">Danh mục này chưa có dịch vụ hoạt động.</div>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var service in group.Services)
+                            {
+                                <div class="col-md-4 mb-3 service-item" data-service-text="@($"{service.ServiceName} {service.Description} {group.CategoryName}".ToLowerInvariant())">
+                                    <div class="card h-100 border-0 shadow-sm service-card">
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="mb-2">@service.ServiceName</h5>
+                                            <p class="text-muted mb-2">@(string.IsNullOrWhiteSpace(service.Description) ? "Chưa có mô tả" : service.Description)</p>
+                                            <p class="mb-1"><strong>Giá:</strong> @service.Price.ToString("N0") đ</p>
+                                            <p class="mb-3"><strong>Thời gian dự kiến:</strong> @service.DurationMinutes phút</p>
+                                            <a class="btn btn-primary mt-auto" asp-controller="Management" asp-action="Appointments" asp-route-selectedServiceId="@service.ServiceId">Đặt lịch ngay</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</section>
+
+<style>
+    .service-search-box .input-group-text,
+    .service-search-box .form-control {
+        height: 48px;
+        border-color: #d9e2d9;
+    }
+
+    .service-search-box .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 .2rem rgba(40, 167, 69, .15);
+    }
+</style>
+
+<script>
+    (function () {
+        const input = document.getElementById('serviceSearchInput');
+        const btnSearch = document.getElementById('btnServiceSearch');
+        const btnClear = document.getElementById('btnClearServiceSearch');
+        const items = Array.from(document.querySelectorAll('.service-item'));
+        const groups = Array.from(document.querySelectorAll('.service-group'));
+
+        function applyServiceFilter() {
+            const keyword = (input.value || '').trim().toLowerCase();
+
+            items.forEach(item => {
+                const text = item.dataset.serviceText || '';
+                item.style.display = !keyword || text.includes(keyword) ? '' : 'none';
+            });
+
+            groups.forEach(group => {
+                const groupItems = Array.from(group.querySelectorAll('.service-item'));
+                const visibleInGroup = groupItems.some(x => x.style.display !== 'none');
+                group.style.display = visibleInGroup ? '' : 'none';
+            });
+        }
+
+        btnSearch?.addEventListener('click', applyServiceFilter);
+        btnClear?.addEventListener('click', function () {
+            input.value = '';
+            applyServiceFilter();
+        });
+        input?.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyServiceFilter();
+            }
+        });
+    })();
+</script>

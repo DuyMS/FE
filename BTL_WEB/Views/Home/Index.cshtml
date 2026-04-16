@@ -1,40 +1,131 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model BTL_WEB.Models.ViewModels.HomePageViewModel
+
+@{
+    ViewData["Title"] = "Trang chủ";
     Layout = "~/Views/Shared/_LayoutPetcarehub.cshtml";
 }
 
-<section class="ftco-section bg-light">
+<section class="hero-wrap js-fullheight" style="background-image: url('@Url.Content("~/LayoutPetcare/images/bg_1.jpg")');" data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
     <div class="container">
-        <div class="row justify-content-center pb-5 mb-3">
-            <div class="col-md-7 heading-section text-center ftco-animate">
-                <h2><span style="background:#2f5cc7;color:#fff;padding:8px 16px;display:inline-block;">Affordable Packages</span></h2>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-4 ftco-animate">
-                <div class="block-7">
-                    <div class="img" style="background-image: url('@Url.Content("~/LayoutPetcare/images/pricing-1.jpg")'); height: 345px; background-size: cover; background-position: center;"></div>
-                    <div class="text-center p-4">
-                        <span class="excerpt d-block" style="color:#00b050;font-weight:600;">PERSONAL</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 ftco-animate">
-                <div class="block-7">
-                    <div class="img" style="background-image: url('@Url.Content("~/LayoutPetcare/images/pricing-2.jpg")'); height: 345px; background-size: cover; background-position: center;"></div>
-                    <div class="text-center p-4">
-                        <span class="excerpt d-block" style="color:#00b050;font-weight:600;">BUSINESS</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 ftco-animate">
-                <div class="block-7">
-                    <div class="img" style="background-image: url('@Url.Content("~/LayoutPetcare/images/pricing-3.jpg")'); height: 345px; background-size: cover; background-position: center;"></div>
-                    <div class="text-center p-4">
-                        <span class="excerpt d-block" style="color:#00b050;font-weight:600;">ULTIMATE</span>
-                    </div>
-                </div>
+        <div class="row no-gutters slider-text js-fullheight align-items-center justify-content-center" data-scrollax-parent="true">
+            <div class="col-md-11 ftco-animate text-center">
+                <h1 class="mb-4">Highest Quality Care For Pets You'll Love</h1>
+                <p><a asp-controller="Services" asp-action="Catalog" class="btn btn-primary mr-md-4 py-3 px-4">Learn more</a></p>
             </div>
         </div>
     </div>
 </section>
+
+<section class="ftco-section bg-light pb-0 pt-5">
+    <div class="container">
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-9 text-center heading-section">
+                <h2 class="mb-3">PetCareHub Portal</h2>
+                <p>Nền tảng đặt lịch và chăm sóc thú cưng hiện đại dành cho mọi chủ nuôi.</p>
+            </div>
+        </div>
+
+        <div class="row stat-section mx-0 mb-5">
+            <div class="col-md-3 col-6 stat-box">
+                <div class="stat-icon"><span class="fa fa-paw"></span></div>
+                <h4>@Model.PetsCount</h4>
+                <p>Pets</p>
+            </div>
+            <div class="col-md-3 col-6 stat-box">
+                <div class="stat-icon"><span class="fa fa-building"></span></div>
+                <h4>@Model.BranchesCount</h4>
+                <p>Branches</p>
+            </div>
+            <div class="col-md-3 col-6 stat-box">
+                <div class="stat-icon"><span class="fa fa-user-md"></span></div>
+                <h4>@Model.StaffCount</h4>
+                <p>Staff</p>
+            </div>
+            <div class="col-md-3 col-6 stat-box">
+                <div class="stat-icon"><span class="fa fa-heart"></span></div>
+                <h4>@Model.HappyClients</h4>
+                <p>Happy Clients</p>
+            </div>
+        </div>
+
+        <div class="row justify-content-center mb-3">
+            <div class="col-md-10 text-center heading-section">
+                <h3>Dịch vụ nổi bật</h3>
+            </div>
+        </div>
+        <div class="row mb-5">
+            @foreach (var service in Model.FeaturedServices)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card border-0 shadow-sm h-100 featured-service-card">
+                        <div class="card-body d-flex flex-column">
+                            <div class="service-icon mb-2"><span class="fa fa-medkit"></span></div>
+                            <h5>@service.ServiceName</h5>
+                            <p class="text-muted">@(string.IsNullOrWhiteSpace(service.Description) ? "Dịch vụ chăm sóc chuyên nghiệp cho thú cưng." : service.Description)</p>
+                            <p class="mb-3"><strong>@service.Price.ToString("N0") đ</strong></p>
+                            <a asp-controller="Services" asp-action="Catalog" class="btn btn-outline-success mt-auto">Tìm hiểu thêm</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="row justify-content-center mb-3">
+            <div class="col-md-10 text-center heading-section">
+                <h3>Khách hàng nói gì</h3>
+            </div>
+        </div>
+        <div class="row">
+            @foreach (var item in Model.Testimonials)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <p class="mb-2">"@item.Comment"</p>
+                            <p class="mb-1 text-warning">@(new string('★', item.Rating))</p>
+                            <small class="text-muted">- @item.CustomerName</small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .stat-section {
+        background: #ecf8ef;
+        border: 1px solid #d3ebd8;
+        border-radius: 12px;
+        padding: 15px 5px;
+    }
+    .stat-box {
+        text-align: center;
+        padding: 10px;
+    }
+    .stat-box h4 { color: #28a745; font-weight: 700; margin-bottom: 2px; }
+    .stat-box p { margin-bottom: 0; color: #5b6570; }
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #28a745;
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 8px;
+    }
+    .featured-service-card .service-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: #e8f7ed;
+        color: #28a745;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+</style>

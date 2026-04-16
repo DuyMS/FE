@@ -1,0 +1,36 @@
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = "~/Views/Shared/_LayoutPetcarehub.cshtml";
+}
+
+<section class="ftco-section bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h3 class="mb-3">Đăng nhập</h3>
+                        <p class="text-muted small">Tài khoản mẫu: <strong>user / user123</strong> hoặc <strong>admin / 123</strong></p>
+                        @if (TempData["LoginError"] is string loginError)
+                        {
+                            <div class="alert alert-danger py-2">@loginError</div>
+                        }
+                        <form method="post" asp-action="Login">
+                            @Html.AntiForgeryToken()
+                            <div class="form-group mb-3">
+                                <label>Tài khoản</label>
+                                <input class="form-control" type="text" name="username" placeholder="Nhập tài khoản" required />
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>Mật khẩu</label>
+                                <input class="form-control" type="password" name="password" placeholder="Nhập mật khẩu" required />
+                            </div>
+                            <button type="submit" class="btn btn-primary py-2 px-4">Đăng nhập</button>
+                            <a asp-action="Register" class="btn btn-link">Chưa có tài khoản? Đăng ký</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

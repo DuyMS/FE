@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Quản lý dịch vụ";
+    Layout = "~/Views/Shared/_LayoutPetcarehub.cshtml";
     var categories = ViewBag.Categories as List<ServiceCategory> ?? new List<ServiceCategory>();
     var searchTerm = ViewBag.SearchTerm as string ?? string.Empty;
     var selectedCategoryId = ViewBag.CategoryId as int?;
@@ -394,3 +395,4 @@
         });
     </script>
 }
+

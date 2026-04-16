@@ -1,0 +1,188 @@
+@model BTL_WEB.Models.ViewModels.AppointmentsPageViewModel
+
+@{
+    ViewData["Title"] = "Quản lý lịch hẹn";
+    Layout = "~/Views/Shared/_LayoutPetcarehub.cshtml";
+    var pets = ViewBag.PetOptions as IEnumerable<dynamic> ?? [];
+    var branches = ViewBag.BranchOptions as IEnumerable<dynamic> ?? [];
+    var services = ViewBag.ServiceOptions as IEnumerable<dynamic> ?? [];
+}
+
+<section class="ftco-section bg-light">
+    <div class="container">
+        @if (TempData["SuccessMessage"] is string successMessage)
+        {
+            <div class="alert alert-success">@successMessage</div>
+        }
+        @if (TempData["ErrorMessage"] is string errorMessage)
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card p-3">
+                    <h5 class="mb-3">Tạo lịch hẹn mới</h5>
+                    <form method="post" asp-action="CreateAppointment" class="row">
+                        @Html.AntiForgeryToken()
+                        <div class="col-md-3 mb-2">
+                            <select class="form-control" name="petId" required>
+                                <option value="">Chọn thú cưng</option>
+                                @foreach (var pet in pets)
+                                {
+                                    <option value="@pet.PetId">@pet.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <select class="form-control" name="branchId" required>
+                                <option value="">Chọn chi nhánh</option>
+                                @foreach (var branch in branches)
+                                {
+                                    <option value="@branch.BranchId">@branch.BranchName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <input class="form-control" type="datetime-local" name="appointmentDateTime" required />
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <select class="form-control" name="selectedServiceId">
+                                <option value="">Dịch vụ (tuỳ chọn)</option>
+                                @foreach (var service in services)
+                                {
+                                    <option value="@service.ServiceId" selected="@(Model.SelectedServiceId == (int)service.ServiceId)">@service.ServiceName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <input class="form-control" name="notes" placeholder="Ghi chú thêm" />
+                        </div>
+                        <div class="col-md-12 mb-2 text-right">
+                            <button type="submit" class="btn btn-primary btn-block">Tạo lịch hẹn</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-10 text-center heading-section ftco-animate">
+                <h2>Quản lý Lịch hẹn</h2>
+                <p>Các bảng theo sơ đồ: <strong>APPOINTMENT</strong>, <strong>APPOINTMENT_SERVICE</strong>.</p>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="p-4 rounded" style="background-image:url('@Url.Content("~/LayoutPetcare/images/about.jpg")');background-size:cover;background-position:center;">
+                    <div class="p-3" style="background:rgba(0,0,0,.45);border-radius:8px;">
+                        <h3 class="text-white mb-1">Module Lịch hẹn</h3>
+                        <p class="text-white mb-0">Theo dõi lịch hẹn, bác sĩ phụ trách và dịch vụ phát sinh theo từng cuộc hẹn.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card p-3">
+                    <form method="get" class="row">
+                        <div class="col-md-3 mb-2"><input class="form-control" disabled placeholder="Nguồn dữ liệu từ database" /></div>
+                        <div class="col-md-3 mb-2"><input class="form-control" name="date" value="@(Model.Date?.ToString("yyyy-MM-dd"))" type="date" /></div>
+                        <div class="col-md-3 mb-2">
+                            <select class="form-control" name="status">
+                                <option>Tất cả trạng thái</option>
+                                <option value="Pending" selected="@(Model.Status == "Pending")">Pending</option>
+                                <option value="Confirmed" selected="@(Model.Status == "Confirmed")">Confirmed</option>
+                                <option value="Completed" selected="@(Model.Status == "Completed")">Completed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-2"><button type="submit" class="btn btn-primary btn-block">Lọc lịch hẹn</button></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered bg-white">
+                <thead>
+                    <tr>
+                        <th>AppointmentID</th>
+                        <th>UserID</th>
+                        <th>User</th>
+                        <th>PetID</th>
+                        <th>Pet</th>
+                        <th>BranchID</th>
+                        <th>Branch</th>
+                        <th>AppointmentDateTime</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Appointments.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="10" class="text-center text-muted">Không có lịch hẹn phù hợp bộ lọc.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model.Appointments)
+                        {
+                            <tr>
+                                <td>@item.AppointmentId</td>
+                                <td>@item.UserId</td>
+                                <td>@item.UserName</td>
+                                <td>@item.PetId</td>
+                                <td>@item.PetName</td>
+                                <td>@item.BranchId</td>
+                                <td>@item.BranchName</td>
+                                <td>@item.AppointmentDateTime.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@item.Status</td>
+                                <td>@item.Notes</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <h4 class="mb-3">Dịch vụ theo lịch hẹn</h4>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered bg-white">
+                <thead>
+                    <tr>
+                        <th>AppointmentID</th>
+                        <th>ServiceID</th>
+                        <th>ServiceName</th>
+                        <th>Quantity</th>
+                        <th>UnitPrice</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.AppointmentServices.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Chưa có dịch vụ phát sinh theo lịch hẹn.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model.AppointmentServices)
+                        {
+                            <tr>
+                                <td>@item.AppointmentId</td>
+                                <td>@item.ServiceId</td>
+                                <td>@item.ServiceName</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.UnitPrice.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
